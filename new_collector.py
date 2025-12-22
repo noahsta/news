@@ -44,4 +44,37 @@ def extract_txt(file_path, start_time=None, end_time=None):
 
     return filtered_urls
 
+def fetch_html(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    For each row in df, download the page at df['SOURCEURL'] and
+    return a new DataFrame with columns:
+        DATE, SOURCES, SOURCEURL, PAGE_HTML
+    """
+    records = []
 
+    for idx, row in df.iterrows():
+        url = row.get("SOURCEURLS")
+        success = False
+        try:
+            resp = requests.get(url, timeout=10)
+            resp.raise_for_status()
+            html = resp.text
+            success = True
+        except Exception as e:
+            # if request fails, keep html as None (or str(e) if you prefer logging)
+            print(e)
+            html = None
+
+        records.append(
+            {
+                "DATE": row["Day"],
+                "SOURCEURLS": url,
+                "PAGE_HTML": html,
+                "REGION": row["RegionTopic"]
+            }
+        )
+        if success:
+            print("downloaded: " + url)
+        else:
+            print("failed to download: " + url)
+    return pd.DataFrame.from_records(records)

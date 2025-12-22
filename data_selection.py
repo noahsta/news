@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import pandas as pd
+import numpy as np
 from urllib.parse import urlparse
 
 def extract_extension(url):
@@ -50,13 +51,24 @@ def filter_rows_2(df: pd.DataFrame) -> pd.DataFrame:
         14, 343, 833  # Protests and rights
     ]
 
-    # Filter for Ukrainian/Syrian refugees OR general refugee role
-    refugee_mask = (
-        df['Actor1EthnicCode'].isin(refugee_ethnic_codes) |
-        df['Actor2EthnicCode'].isin(refugee_ethnic_codes) |
-        df['Actor1CountryCode'].isin(refugee_ethnic_codes) |
-        df['Actor2CountryCode'].isin(refugee_ethnic_codes) 
+    ref_syr = (
+        df['Actor1EthnicCode'].isin(['SYR']) |
+        df['Actor2EthnicCode'].isin(['SYR']) |
+        df['Actor1CountryCode'].isin(['SYR']) |
+        df['Actor2CountryCode'].isin(['SYR']) 
     )
+    ref_ukr = (
+        df['Actor1EthnicCode'].isin(['UKR']) |
+        df['Actor2EthnicCode'].isin(['UKR']) |
+        df['Actor1CountryCode'].isin(['UKR']) |
+        df['Actor2CountryCode'].isin(['UKR']) 
+    )
+    # Filter for Ukrainian/Syrian refugees OR general refugee role
+    refugee_mask = ref_syr | ref_ukr
+    df["RegionTopic"] = [""]*len(df)
+    df.loc[ref_syr, "RegionTopic"] = "SYR"
+    df.loc[ref_ukr, "RegionTopic"] = "UKR"
+
     hanspeter = (df['Actor1Type1Code'].str.contains(refugee_type_code, na=False) |
                     df['Actor2Type1Code'].str.contains(refugee_type_code, na=False))
 
@@ -77,3 +89,6 @@ def filter_rows_2(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Found {len(filtered_df)} records.")
     filtered_df.head()
     return filtered_df
+
+def remove_duplicate_sourceurls(df: pd.DataFrame) -> pd.DataFrame:
+    return df.drop_duplicates(subset="SOURCEURLS", keep="first").reset_index(drop=True)
