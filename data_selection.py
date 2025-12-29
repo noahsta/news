@@ -39,7 +39,7 @@ def filter_rows(df: pd.DataFrame) -> pd.DataFrame:
 
 
 #sugma balls
-def filter_rows_2(df: pd.DataFrame) -> pd.DataFrame:
+def filter_rows_2(df: pd.DataFrame, include: str="all") -> pd.DataFrame:
     # Define the filters
     refugee_ethnic_codes = ['UKR', 'SYR']  # Ukrainian and Syrian ethnic codes
     refugee_type_code = 'REF'  # General refugee role
@@ -51,23 +51,31 @@ def filter_rows_2(df: pd.DataFrame) -> pd.DataFrame:
         14, 343, 833  # Protests and rights
     ]
 
-    ref_syr = (
+    ref_syr = np.array((
         df['Actor1EthnicCode'].isin(['SYR']) |
         df['Actor2EthnicCode'].isin(['SYR']) |
         df['Actor1CountryCode'].isin(['SYR']) |
         df['Actor2CountryCode'].isin(['SYR']) 
-    )
-    ref_ukr = (
+    ))
+    ref_ukr = np.array((
         df['Actor1EthnicCode'].isin(['UKR']) |
         df['Actor2EthnicCode'].isin(['UKR']) |
         df['Actor1CountryCode'].isin(['UKR']) |
         df['Actor2CountryCode'].isin(['UKR']) 
-    )
+    ))
     # Filter for Ukrainian/Syrian refugees OR general refugee role
-    refugee_mask = ref_syr | ref_ukr
-    df["RegionTopic"] = [""]*len(df)
-    df.loc[ref_syr, "RegionTopic"] = "SYR"
-    df.loc[ref_ukr, "RegionTopic"] = "UKR"
+    if include == "spec":
+        refugee_mask = ref_syr | ref_ukr
+        df["RegionTopic"] = [""]*len(df)
+        df.loc[ref_syr, "RegionTopic"] = "SYR"
+        df.loc[ref_ukr, "RegionTopic"] = "UKR"
+    elif include == "no ukr":
+        refugee_mask = ~ref_ukr
+    elif include == "no syr":
+        refugee_mask = ~ref_syr
+    else:
+        raise
+    
 
     hanspeter = (df['Actor1Type1Code'].str.contains(refugee_type_code, na=False) |
                     df['Actor2Type1Code'].str.contains(refugee_type_code, na=False))

@@ -23,7 +23,7 @@ def extract_filenames_from_file(html_filename):
     return re.findall(pattern, html_text)
 
 
-def download_and_filter(filenames, base_url: str=None):
+def download_and_filter(filenames, base_url: str=None, include: str="spec"):
     """
     For each filename in the list:
     - download the .zip file
@@ -70,7 +70,7 @@ def download_and_filter(filenames, base_url: str=None):
                           "Actor2Geo_Lat", "Actor2Geo_Long", "Actor2Geo_FeatureID", "ActionGeo_Type", "ActionGeo_FullName", "ActionGeo_CountryCode",
                           "ActionGeo_ADM1Code", "ActionGeo_ADM2Code", "ActionGeo_Lat", "ActionGeo_Long", "ActionGeo_FeatureID",
                           "DATE", "SOURCEURLS"]
-        df_useful = filter_rows_2(df_raw)
+        df_useful = filter_rows_2(df_raw, include)
         df_useful["source_filename"] = name  # original ZIP filename
         
         dfs.append(df_useful)
