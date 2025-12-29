@@ -113,34 +113,5 @@ plt.xlabel("Word")
 plt.ylabel("Frequency")
 plt.title(f"Top {top_n} most common non-trivial words (EN+DE)")
 plt.tight_layout()
+plt.savefig("asoguet.jpg")
 plt.show()
-
-# --- OPTIONAL: separate histograms per language ---
-
-# English
-top_n_en = 30
-mc_en = word_counts_en.most_common(top_n_en)
-if mc_en:
-    words_en, freqs_en = zip(*mc_en)
-    plt.figure(figsize=(10, 5))
-    plt.bar(range(len(words_en)), freqs_en)
-    plt.xticks(range(len(words_en)), words_en, rotation=90)
-    plt.xlabel("Word")
-    plt.ylabel("Frequency")
-    plt.title(f"Top {top_n_en} EN words (non-trivial)")
-    plt.tight_layout()
-    plt.show()
-
-# German
-top_n_de = 30
-mc_de = word_counts_de.most_common(top_n_de)
-if mc_de:
-    words_de, freqs_de = zip(*mc_de)
-    plt.figure(figsize=(10, 5))
-    plt.bar(range(len(words_de)), freqs_de)
-    plt.xticks(range(len(words_de)), words_de, rotation=90)
-    plt.xlabel("Word")
-    plt.ylabel("Frequency")
-    plt.title(f"Top {top_n_de} DE words (non-trivial)")
-    plt.tight_layout()
-    plt.show()
